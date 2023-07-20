@@ -75,7 +75,7 @@ public class CuisinaryFoodWaste extends JFrame implements ActionListener{
         add(lblBackground);
        
        //sql
-       try {
+        try {
             connection = DriverManager.getConnection(dbURL, dbUsername, dbPassword);
             statement = connection.createStatement();
         } catch (SQLException e) {

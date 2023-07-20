@@ -229,62 +229,17 @@ public class Inventory extends JFrame implements ActionListener {
         }
     }
 
-// Add a new method to handle adding items to the JTable
-private void addItemToTable() {
-    String selectedCategory = (String) cbCategory.getSelectedItem();
-    String selectedDish = (String) cbDishes.getSelectedItem();
-    String quantity = txtfldQuantity.getText();
-
-    // Validate input
-    if (selectedCategory.equals("Select Category") || selectedDish == null || selectedDish.isEmpty() || quantity.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Please select a category, dish, and enter the quantity.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-    
-    
-
-    // Convert quantity to integer and check if it's valid
-    int intQuantity;
-    try {
-        intQuantity = Integer.parseInt(quantity);
-        if (intQuantity < 1) {
-            JOptionPane.showMessageDialog(this, "Quantity should be a positive integer.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-    } catch (NumberFormatException ex) {
-        JOptionPane.showMessageDialog(this, "Invalid quantity input. Please enter a valid integer.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-
-    // Add the item to the JTable
-    model.addRow(new Object[]{selectedCategory, selectedDish, intQuantity});
-    // Clear the input fields
-    txtfldQuantity.setText("");
-    cbCategory.setSelectedIndex(0);
-    cbDishes.removeAllItems();
-}
-
-private void removeItemFromTable() {
-    int selectedRow = table.getSelectedRow();
-    if (selectedRow != -1) {
-        model.removeRow(selectedRow);
-    } else {
-        JOptionPane.showMessageDialog(this, "Please select a row to remove.", "Error", JOptionPane.ERROR_MESSAGE);
-    }
-}
-    
-private void updateItemInTable() {
-    int selectedRow = table.getSelectedRow();
-    if (selectedRow != -1) {
+    private void addItemToTable() {
+        String selectedCategory = (String) cbCategory.getSelectedItem();
+        String selectedDish = (String) cbDishes.getSelectedItem();
         String quantity = txtfldQuantity.getText();
 
         // Validate input
-        if (quantity.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please enter the new quantity.", "Error", JOptionPane.ERROR_MESSAGE);
+        if (selectedCategory.equals("Select Category") || selectedDish == null || selectedDish.isEmpty() || quantity.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please select a category, dish, and enter the quantity.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // Convert quantity to integer and check if it's valid
         int intQuantity;
         try {
             intQuantity = Integer.parseInt(quantity);
@@ -297,12 +252,100 @@ private void updateItemInTable() {
             return;
         }
 
-        // Update the quantity in the JTable
-        model.setValueAt(intQuantity, selectedRow, 2);
-        // Clear the input fields
+        // Add the item to the JTable
+        model.addRow(new Object[]{selectedCategory, selectedDish, intQuantity});
+
+        // Insert the data into the database
+        try {
+            String insertQuery = "INSERT INTO inv (Category, Dishes, Quantity) VALUES (?, ?, ?)";
+            PreparedStatement preparedStatement = connection.prepareStatement(insertQuery);
+            preparedStatement.setString(1, selectedCategory);
+            preparedStatement.setString(2, selectedDish);
+            preparedStatement.setInt(3, intQuantity);
+            preparedStatement.executeUpdate();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error inserting data into the database: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            
+            model.removeRow(model.getRowCount() - 1);
+            return;
+        }
+
         txtfldQuantity.setText("");
         cbCategory.setSelectedIndex(0);
         cbDishes.removeAllItems();
+    }
+
+    private void removeItemFromTable() {
+    int selectedRow = table.getSelectedRow();
+    if (selectedRow != -1) {
+        String selectedCategory = (String) table.getValueAt(selectedRow, 0);
+        String selectedDish = (String) table.getValueAt(selectedRow, 1);
+
+        // Remove the row from the JTable
+        model.removeRow(selectedRow);
+
+        try {
+            String deleteQuery = "DELETE FROM inv WHERE Category = ? AND Dishes = ?";
+            PreparedStatement preparedStatement = connection.prepareStatement(deleteQuery);
+            preparedStatement.setString(1, selectedCategory);
+            preparedStatement.setString(2, selectedDish);
+            preparedStatement.executeUpdate();
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error deleting data from the database: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    } else {
+        JOptionPane.showMessageDialog(this, "Please select a row to remove.", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+
+    
+    private void updateItemInTable() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow != -1) {
+            String quantity = txtfldQuantity.getText();
+
+            // Validate input
+            if (quantity.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter the new quantity.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Convert quantity to integer and check if it's valid
+            int intQuantity;
+            try {
+                intQuantity = Integer.parseInt(quantity);
+                if (intQuantity < 1) {
+                    JOptionPane.showMessageDialog(this, "Quantity should be a positive integer.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid quantity input. Please enter a valid integer.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Update the quantity in the JTable
+            model.setValueAt(intQuantity, selectedRow, 2);
+
+            // Update the corresponding item in the database
+            try {
+                String selectedCategory = (String) table.getValueAt(selectedRow, 0);
+                String selectedDish = (String) table.getValueAt(selectedRow, 1);
+
+                String updateQuery = "UPDATE inv SET Quantity = ? WHERE Category = ? AND Dishes = ?";
+                PreparedStatement preparedStatement = connection.prepareStatement(updateQuery);
+                preparedStatement.setInt(1, intQuantity);
+                preparedStatement.setString(2, selectedCategory);
+                preparedStatement.setString(3, selectedDish);
+                preparedStatement.executeUpdate();
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error updating data in the database: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+            // Clear the input fields
+            txtfldQuantity.setText("");
+            cbCategory.setSelectedIndex(0);
+            cbDishes.removeAllItems();
         } else {
             JOptionPane.showMessageDialog(this, "Please select a row to update.", "Error", JOptionPane.ERROR_MESSAGE);
         }
