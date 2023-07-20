@@ -35,7 +35,7 @@ public class CuisinaryFoodWaste extends JFrame implements ActionListener{
     String[] arrDrinks = {"Bottled Water","Mango Shake","Buko Shake","Sprite in Can","Coke in Can"};
     //Other Arrays
     String[] cbmMonth = {"January","February","March","April","May","June","July","August","September","October","November","December"};
-    String[] cbmBox = {"Inventory","Sales","Waste"};
+    String[] cbmBox = {"Waste","Sales","Inventory"};
     
     
     //sql
@@ -254,7 +254,8 @@ public class CuisinaryFoodWaste extends JFrame implements ActionListener{
         panel4.setBounds(40,30,200,80);
         panel4.setLayout(new GridLayout(2,0,0,2));
         
-        btnHome = new JButton("Home");
+        ImageIcon imgg = new ImageIcon("C:\\Users\\Nico\\Documents\\NetBeansProjects\\RestaurantSystem\\src\\main\\java\\RestaurantSystem\\Home.png");
+        btnHome = new JButton(imgg);
         btnHome.setBackground(Color.WHITE);
         btnHome.addActionListener(this);
         
@@ -365,20 +366,19 @@ public class CuisinaryFoodWaste extends JFrame implements ActionListener{
             overallTable("Over All");
         }else if(e.getSource() == btnHome){
             dispose();
-            HomePage home = new HomePage();
-            home.setVisible(true);
+            new HomePage();
         }else if(e.getSource() == reportCbx){
             String selectedChoices = (String)reportCbx.getSelectedItem().toString();
             switch(selectedChoices){
-                case "Inventory":
-                    //new CusinaryInventory();
+                case "Waste":
+                    new CuisinaryFoodWaste();
                     break;
                 case "Sales":
                     //new CusinarySales();
                     break;
-                case "Waste":
-                    CuisinaryFoodWaste foodwaste = new CuisinaryFoodWaste();
-                    foodwaste.setVisible(true);
+                case "Inventory":
+                    dispose();
+                    new Inventory();
                     break;
                 default:
                     break;

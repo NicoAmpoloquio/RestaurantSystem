@@ -1,4 +1,5 @@
 //Inisip ni Enciso yung UI, tapos pinagtulungan naming tatlo nila Lumaong, Ampoloquio at Enciso
+//Gawa po ni Rosario yung Payment Method
 
 package RestaurantSystem;
 
@@ -15,11 +16,12 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.*;
+import javax.swing.JOptionPane;
 
 public class MainMenu extends JFrame implements ActionListener {
-    private JPanel buttonPanel,areaPanel, totalPanel,buttonPanel1;
-    private JButton btnHome, btnMain,btnAppetizer,btnSalad,btnDessert,btnDrinks,btnViewOrder,btnVoid,btnCancel,btnTotal;
-    private JTextArea orderArea, totalArea;
+    private JPanel buttonPanel, areaPanel, totalPanel, buttonPanel1, paymentPanel;
+    private JButton btnHome, btnMain, btnAppetizer, btnSalad, btnDessert, btnDrinks, btnViewOrder, btnVoid, btnCancel, btnTotal, btnPayment;
+    private JTextArea orderArea, totalArea, paymentArea;
     private JLabel lblBackground;
     private ImageIcon homeImage;
     //MainCourse
@@ -41,6 +43,7 @@ public class MainMenu extends JFrame implements ActionListener {
         areaPanel();
         buttonPanel1();
         totalPanel();
+        paymentPanel();
         
         setSize(900, 650);
         setTitle("Main Menu");
@@ -154,14 +157,37 @@ public class MainMenu extends JFrame implements ActionListener {
     public void totalPanel(){
         totalPanel = new JPanel();
         totalPanel.setBackground(Color.PINK);
-        totalPanel.setBounds(330,370,500,190);
+        totalPanel.setBounds(330,370,500,140);
         totalPanel.setLayout(new BorderLayout());
         
         totalArea = new JTextArea();
         totalArea.setEditable(false);
         
-        totalPanel.add(totalArea,BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(totalArea);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        totalPanel.add(scrollPane, BorderLayout.CENTER);
         add(totalPanel);
+    }
+    
+    public void paymentPanel(){
+        paymentPanel = new JPanel();
+        paymentPanel.setBackground(new Color(0,0,0,50));
+        paymentPanel.setBounds(330,510,200,50);
+        paymentPanel.setLayout(new BorderLayout());
+        //paymentPanel.setLayout(new GridLayout(0,2,0,0));
+        paymentPanel.setFont(new Font("Open Sans",Font.BOLD,25));
+        
+        btnPayment = new JButton("Payment");
+        btnPayment.setBackground(Color.YELLOW);
+        btnPayment.addActionListener(this);
+        
+        //paymentArea = new JTextArea();
+        //paymentArea.setEditable(false);
+        
+        paymentPanel.add(btnPayment);
+        //paymentPanel.add(paymentArea);
+        add(paymentPanel);
     }
     
     @Override
@@ -171,7 +197,6 @@ public class MainMenu extends JFrame implements ActionListener {
         }
         else if (clicked.getSource() == btnHome) {
             new HomePage();
-            
         }
         else if (clicked.getSource() == btnAppetizer){
             showAppetizers();
@@ -195,28 +220,38 @@ public class MainMenu extends JFrame implements ActionListener {
             orderArea.setText("Order Cancelled.");
         }
         else if (clicked.getSource() == btnTotal) {
-        StringBuilder receipt = new StringBuilder("Receipt:\n\n");
-        int overallTotal = 0;
-        
-        //Date
-        Date currentDate = new Date();
-        receipt.append("Date: ").append(currentDate.toString()).append("\n\n");
+            StringBuilder receipt = new StringBuilder("Receipt:\n\n");
+            int overallTotal = 0;
 
-
-        if (program2Order.isEmpty()) {
-            receipt.append("No items in the order.");
-        } else {
-            for (Map.Entry<String, Integer> entry : program2Order.entrySet()) {
-                String itemName = entry.getKey();
-                int quantity = entry.getValue();
-                int itemTotal = calculateItemTotal(itemName, quantity);
-                receipt.append(itemName).append(" (x").append(quantity).append(") - P").append(itemTotal).append("\n");
-                overallTotal += itemTotal;
+            //Date
+            Date currentDate = new Date();
+            receipt.append("Date: ").append(currentDate.toString()).append("\n\n");
+            if (program2Order.isEmpty()) {
+                receipt.append("No items in the order.");
+            } else {
+                for (Map.Entry<String, Integer> entry : program2Order.entrySet()) {
+                    String itemName = entry.getKey();
+                    int quantity = entry.getValue();
+                    int itemTotal = calculateItemTotal(itemName, quantity);
+                    receipt.append(itemName).append(" (x").append(quantity).append(") - P").append(itemTotal).append("\n");
+                    overallTotal += itemTotal;
+                }
+                receipt.append("\nOverall Total: P").append(overallTotal);
             }
-            receipt.append("\nOverall Total: P").append(overallTotal);
-        }
 
-        totalArea.setText(receipt.toString());
+            totalArea.setText(receipt.toString());
+        }
+        else if (clicked.getSource() == btnPayment){
+            String[] paymentOptions = {"Cash", "Credit Card"};
+            String selectedPayment = (String) JOptionPane.showInputDialog(this, "Select Payment Method", "Payment Method", JOptionPane.PLAIN_MESSAGE, null, paymentOptions, paymentOptions[0]);
+
+            if (selectedPayment != null) {
+                if (selectedPayment.equals("Cash")) {
+                    handleCashPayment();
+                } else if (selectedPayment.equals("Credit Card")) {
+                    handleCreditCardPayment();
+                }
+            }
         }
     }
     
@@ -381,6 +416,57 @@ public class MainMenu extends JFrame implements ActionListener {
         return itemTotal;
     }
     
+    private void handleCashPayment() {
+        String inputAmount = JOptionPane.showInputDialog(this, "Enter the amount paid (in pesos):", "Cash Payment", JOptionPane.PLAIN_MESSAGE);
+
+        try {
+            int amountPaid = Integer.parseInt(inputAmount);
+            int overallTotal = calculateOverallTotal();
+
+            if (amountPaid >= overallTotal) {
+                int change = amountPaid - overallTotal;
+                showMessageDialog("Payment successful!\nChange: " + change + " pesos");
+                program2Order.clear(); 
+                orderArea.setText(""); 
+                totalArea.setText(""); 
+            } else {
+                showMessageDialog("Insufficient payment amount.");
+            }
+        } catch (NumberFormatException e) {
+            showMessageDialog("Invalid input. Please enter a valid amount.");
+        }
+    }
+
+    private void handleCreditCardPayment() {
+        String cardNumber = JOptionPane.showInputDialog(this, "Enter the credit card number:", "Credit Card Payment", JOptionPane.PLAIN_MESSAGE);
+        String expiryDate = JOptionPane.showInputDialog(this, "Enter the expiry date (MM/YY):", "Credit Card Payment", JOptionPane.PLAIN_MESSAGE);
+        String cvv = JOptionPane.showInputDialog(this, "Enter the CVV:", "Credit Card Payment", JOptionPane.PLAIN_MESSAGE);
+
+        if (cardNumber != null && !cardNumber.isEmpty() &&
+            expiryDate != null && !expiryDate.isEmpty() &&
+            cvv != null && !cvv.isEmpty()) {
+            
+            int overallTotal = calculateOverallTotal();
+            showMessageDialog("Credit Card Payment Successful!\nTotal Amount Charged: " + overallTotal + " pesos");
+            program2Order.clear(); 
+            orderArea.setText("");
+            totalArea.setText("");
+        } else {
+            showMessageDialog("Invalid credit card details. Please enter valid information.");
+        }
+    }
+
+    private int calculateOverallTotal() {
+        int overallTotal = 0;
+        for (Map.Entry<String, Integer> entry : program2Order.entrySet()) {
+            String itemName = entry.getKey();
+            int quantity = entry.getValue();
+            int itemTotal = calculateItemTotal(itemName, quantity);
+            overallTotal += itemTotal;
+        }
+        return overallTotal;
+    }
+
     private void showMessageDialog(String message) {
         JOptionPane.showMessageDialog(this, message);
     }
