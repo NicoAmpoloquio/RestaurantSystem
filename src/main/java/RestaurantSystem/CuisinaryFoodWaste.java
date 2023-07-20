@@ -263,6 +263,7 @@ public class CuisinaryFoodWaste extends JFrame implements ActionListener{
         reportCbx.setBackground(Color.black);
         reportCbx.setForeground(Color.WHITE);
         ((JLabel)reportCbx.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
+        reportCbx.addActionListener(this);
         
         panel4.add(btnHome);
         panel4.add(reportCbx);
@@ -354,34 +355,33 @@ public class CuisinaryFoodWaste extends JFrame implements ActionListener{
                 
                     DefaultTableModel model = (DefaultTableModel) recordTbl.getModel();
                 model.addRow(new Object[]{getCategory, getDishes, getNumOfItem,getMonth});
-            }catch (SQLException ex) {
-                ex.printStackTrace();
-            }catch (NumberFormatException ex){
-                JOptionPane.showMessageDialog(rootPane, "Please enter number only", "ERROR",JOptionPane.ERROR_MESSAGE);
+                }catch (SQLException ex) {
+                    ex.printStackTrace();
+                }catch (NumberFormatException ex){
+                    JOptionPane.showMessageDialog(rootPane, "Please enter number only", "ERROR",JOptionPane.ERROR_MESSAGE);
+                }
             }
-            }
-        }else if(e.getSource() == btnOverall){
+        }
+        else if(e.getSource() == btnOverall){
             txtfld1.setText("Selected Month: Overall");
             //historyTable(selectedMonth);
             overallTable("Over All");
-        }else if(e.getSource() == btnHome){
+        }
+        else if(e.getSource() == btnHome){
             dispose();
             new HomePage();
-        }else if(e.getSource() == reportCbx){
-            String selectedChoices = (String)reportCbx.getSelectedItem().toString();
-            switch(selectedChoices){
-                case "Waste":
-                    new CuisinaryFoodWaste();
-                    break;
-                case "Sales":
-                    //new CusinarySales();
-                    break;
-                case "Inventory":
-                    dispose();
-                    new Inventory();
-                    break;
-                default:
-                    break;
+        }
+        else if (e.getSource() == reportCbx) {
+            String selectedChoice = (String) reportCbx.getSelectedItem();
+            if (selectedChoice.equals("Waste")) {
+                dispose();
+                new CuisinaryFoodWaste();
+            }
+            else if (selectedChoice.equals("Sales")) {
+            }
+            else if (selectedChoice.equals("Inventory")) {
+                dispose();
+                new Inventory();
             }
         }
     }
@@ -463,18 +463,4 @@ public class CuisinaryFoodWaste extends JFrame implements ActionListener{
             } 
         }
     }
-    
-    //SQL
-    
-    
-//    public static void main(String[] args){
-//       SwingUtilities.invokeLater(new Runnable() {
-//            @Override
-//            public void run() {
-//                new CuisinaryFoodWaste();
-//            }
-//        });
-//    }
-
-    
 }

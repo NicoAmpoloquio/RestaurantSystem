@@ -102,6 +102,7 @@ public class Inventory extends JFrame implements ActionListener {
         reportCbx.setBackground(Color.black);
         reportCbx.setForeground(Color.WHITE);
         ((JLabel)reportCbx.getRenderer()).setHorizontalAlignment(SwingConstants.CENTER);
+        reportCbx.addActionListener(this);
         
         panel1.add(btnHome);
         panel1.add(reportCbx);
@@ -213,21 +214,17 @@ public class Inventory extends JFrame implements ActionListener {
         else if (e.getSource() == btnUpdate) {
             updateItemInTable();
         }
-        else if(e.getSource() == reportCbx){
-            String selectedChoices = (String)reportCbx.getSelectedItem().toString();
-            switch(selectedChoices){
-                case "Inventory":
-                    new Inventory();
-                    break;
-                case "Sales":
-                   // new CusinarySales();
-                    break;
-                case "Waste":
-                    dispose();
-                    new CuisinaryFoodWaste();
-                    break;
-                default:
-                    break;
+        else if (e.getSource() == reportCbx) {
+            String selectedChoice = (String) reportCbx.getSelectedItem();
+            if (selectedChoice.equals("Inventory")) {
+                dispose();
+                new Inventory();
+            }
+            else if (selectedChoice.equals("Sales")) {
+            }
+            else if (selectedChoice.equals("Waste")) {
+                dispose();
+                new CuisinaryFoodWaste();
             }
         }
     }
