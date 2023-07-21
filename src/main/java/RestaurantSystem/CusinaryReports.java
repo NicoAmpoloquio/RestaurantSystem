@@ -80,7 +80,7 @@ public class CusinaryReports extends JFrame implements ActionListener{
         }
         else if(clicked.getSource() == salesBtn){
             dispose();
-            //new CusinarySales();
+            new CusinarySales();
         }
         else if(clicked.getSource() == wasteBtn){
             dispose();

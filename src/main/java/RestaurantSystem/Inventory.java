@@ -221,6 +221,8 @@ public class Inventory extends JFrame implements ActionListener {
                 new Inventory();
             }
             else if (selectedChoice.equals("Sales")) {
+                dispose();
+                new CusinarySales();
             }
             else if (selectedChoice.equals("Waste")) {
                 dispose();

@@ -36,8 +36,10 @@ public class MainMenu extends JFrame implements ActionListener {
     private int bwPrice = 40, msPrice = 150, bsPrice = 150, scPrice = 99, ccPrice = 60;
     
     private Map<String,Integer> program2Order;
+    private CusinarySales cusinarySales;
      
     MainMenu(){
+        cusinarySales = new CusinarySales();
         program2Order = new HashMap<>();
         panelButton();
         areaPanel();
@@ -196,6 +198,7 @@ public class MainMenu extends JFrame implements ActionListener {
             showMainCourse();
         }
         else if (clicked.getSource() == btnHome) {
+            dispose();
             new HomePage();
         }
         else if (clicked.getSource() == btnAppetizer){
@@ -235,6 +238,8 @@ public class MainMenu extends JFrame implements ActionListener {
                     int itemTotal = calculateItemTotal(itemName, quantity);
                     receipt.append(itemName).append(" (x").append(quantity).append(") - P").append(itemTotal).append("\n");
                     overallTotal += itemTotal;
+                    
+                    cusinarySales.addOrderToSalesTable(itemName, quantity, itemTotal);
                 }
                 receipt.append("\nOverall Total: P").append(overallTotal);
             }
@@ -268,7 +273,7 @@ public class MainMenu extends JFrame implements ActionListener {
             showMessageDialog("Order Cancelled.");
         }
     }
-
+    
     public void showAppetizers() {
         String[] appetizers = {"Pork Dumplings", "Spinach Pancakes", "Mild Mushroom with Shrimp"};
         String selectedAppetizer = (String) JOptionPane.showInputDialog(this, "Select Appetizers", "Appetizers", JOptionPane.PLAIN_MESSAGE, null, appetizers, appetizers[0]);
@@ -281,7 +286,7 @@ public class MainMenu extends JFrame implements ActionListener {
             showMessageDialog("Order Cancelled.");
         }
     }
-
+    
     public void showSalad(){
         String[] Salad = {"Prawn Salad","Vegetable Salad","Fruit Salad"};
         String selectedSalad = (String)JOptionPane.showInputDialog(this, "Select Salad", "Salad", JOptionPane.PLAIN_MESSAGE,null,Salad,Salad[0]);
@@ -294,6 +299,7 @@ public class MainMenu extends JFrame implements ActionListener {
             showMessageDialog("Order Cancelled.");
         }
     }
+    
     public void showDessert(){
         String[] Dessert = {"Coffee Tirimasu","Choco Lava Cake","Blueberry Cheesecake","Leche Plan","Ube Halaya"};
         String selectedDessert = (String)JOptionPane.showInputDialog(this, "Select Dessert", "Dessert", JOptionPane.PLAIN_MESSAGE,null,Dessert,Dessert[0]);
@@ -306,6 +312,7 @@ public class MainMenu extends JFrame implements ActionListener {
             showMessageDialog("Order Cancelled.");
         }
     }
+    
     public void showDrinks(){
         String[] Drinks = {"Bottled Water","Mango Shake","Buko Shake","Sprite in Can","Coke in Can"};
         String selectedDrinks = (String)JOptionPane.showInputDialog(this, "Select Main Course", "Main Course", JOptionPane.PLAIN_MESSAGE,null,Drinks,Drinks[0]);
@@ -317,7 +324,7 @@ public class MainMenu extends JFrame implements ActionListener {
         } else {
             showMessageDialog("Order Cancelled.");
         }
-    }
+    } 
     
     public void showViewOrder() {
         StringBuilder orderSummary = new StringBuilder("Current Order:\n");

@@ -378,6 +378,8 @@ public class CuisinaryFoodWaste extends JFrame implements ActionListener{
                 new CuisinaryFoodWaste();
             }
             else if (selectedChoice.equals("Sales")) {
+                dispose();
+                new CusinarySales();
             }
             else if (selectedChoice.equals("Inventory")) {
                 dispose();
